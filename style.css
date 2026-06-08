@@ -1,0 +1,792 @@
+/* =========================================================================
+   Muddy Puddles Flip – stylesheet
+   Peppa Pig themed Reversi/Othello game
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   Custom properties
+   ------------------------------------------------------------------------- */
+:root {
+    /* Brand colours */
+    --peppa-pink:        #e8336d;
+    --peppa-pink-light:  #f9aec8;
+    --peppa-pink-dark:   #b0194d;
+    --george-green:      #3a9c2e;
+    --george-green-light:#a8e0a0;
+    --george-green-dark: #1f6b16;
+
+    /* Board / environment */
+    --sky-blue:          #87ceeb;
+    --sky-blue-light:    #c8e8f5;
+    --grass-green:       #5a9e3f;
+    --mud-brown:         #7a5c3a;
+    --mud-light:         #b08a5e;
+    --mud-pale:          #e8d4bc;
+    --puddle-empty:      #c8e8f5;
+    --puddle-hint:       #a0d8ef;
+    --puddle-border:     #5a8ca8;
+
+    /* UI */
+    --surface:           #fff9f5;
+    --surface-raised:    #ffffff;
+    --text-primary:      #2c1810;
+    --text-secondary:    #5c3d28;
+    --focus-ring:        #e8336d;
+    --shadow:            0 2px 8px rgba(0, 0, 0, 0.18);
+    --shadow-heavy:      0 4px 16px rgba(0, 0, 0, 0.28);
+
+    /* Sizing */
+    --cell-size:         clamp(42px, 9vmin, 68px);
+    --token-size:        calc(var(--cell-size) * 0.78);
+    --board-gap:         2px;
+    --radius:            12px;
+    --radius-sm:         6px;
+    --radius-round:      50%;
+}
+
+/* -------------------------------------------------------------------------
+   Reset / base
+   ------------------------------------------------------------------------- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    /* Peppa Pig world: bright sky blue with rolling green hills at the bottom */
+    background-color: #4db8ff;
+    background-image:
+        /* Fluffy clouds */
+        radial-gradient(ellipse 80px 50px at 12% 18%, white 60%, transparent 62%),
+        radial-gradient(ellipse 60px 40px at 18% 14%, white 60%, transparent 62%),
+        radial-gradient(ellipse 50px 35px at  7% 16%, white 60%, transparent 62%),
+        radial-gradient(ellipse 90px 55px at 72% 12%, white 60%, transparent 62%),
+        radial-gradient(ellipse 65px 42px at 79%  8%, white 60%, transparent 62%),
+        radial-gradient(ellipse 55px 38px at 65% 10%, white 60%, transparent 62%),
+        radial-gradient(ellipse 70px 46px at 44% 20%, white 60%, transparent 62%),
+        radial-gradient(ellipse 50px 34px at 51% 16%, white 60%, transparent 62%),
+        /* Rolling green hill at the bottom */
+        radial-gradient(ellipse 120% 60% at 50% 130%, #4aac28 55%, transparent 56%);
+    min-height: 100dvh;
+    color: var(--text-primary);
+    display: grid;
+    grid-template-rows: auto 1fr auto auto;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+        "header"
+        "main"
+        "aside"
+        "rules";
+    gap: 0;
+}
+
+/* -------------------------------------------------------------------------
+   Header
+   ------------------------------------------------------------------------- */
+header {
+    grid-area: header;
+    /* Scene SVG background – show house/hills area */
+    background-image: url("scene-bg.svg");
+    background-size: cover;
+    background-position: center 55%;
+    background-repeat: no-repeat;
+    color: #ffffff;
+    text-align: center;
+    padding: 22px 24px 20px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+    position: relative;
+    overflow: hidden;
+    min-height: 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Gradient overlay: strong pink behind text, fades to reveal scene at edges */
+header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(232, 51, 109, 0.70) 0%,
+            rgba(232, 51, 109, 0.58) 60%,
+            rgba(180, 30, 80, 0.30) 100%
+        );
+    pointer-events: none;
+}
+
+header h1,
+header .subtitle {
+    position: relative; /* sit above the overlay */
+    z-index: 1;
+}
+
+header h1 {
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    margin-top: 5px;
+    opacity: 0.95;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* -------------------------------------------------------------------------
+   Main layout
+   ------------------------------------------------------------------------- */
+main {
+    grid-area: main;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 18px 12px 12px;
+    gap: 14px;
+}
+
+/* -------------------------------------------------------------------------
+   Scoreboard
+   ------------------------------------------------------------------------- */
+.scoreboard {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(6px);
+    border-radius: var(--radius);
+    padding: 12px 24px;
+    box-shadow: var(--shadow);
+    border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.player-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 70px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    transition: background 0.25s, transform 0.15s;
+}
+
+.player-card.active-player {
+    background: var(--mud-pale);
+    transform: scale(1.06);
+}
+
+.player-avatar {
+    width:  52px;
+    height: 52px;
+    border-radius: var(--radius-round);
+    display: block;
+    box-shadow: var(--shadow);
+}
+
+.player-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+#peppa-card .player-name { color: var(--peppa-pink-dark); }
+#george-card .player-name { color: var(--george-green-dark); }
+
+.player-score {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+#peppa-card .player-score { color: var(--peppa-pink); }
+#george-card .player-score { color: var(--george-green); }
+
+.turn-indicator {
+    height: 6px;
+    width: 36px;
+    border-radius: 3px;
+    background: transparent;
+    transition: background 0.2s;
+}
+
+#peppa-card.active-player .turn-indicator { background: var(--peppa-pink); }
+#george-card.active-player .turn-indicator { background: var(--george-green); }
+
+.vs-divider {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--mud-brown);
+    opacity: 0.5;
+    letter-spacing: 0.1em;
+}
+
+/* -------------------------------------------------------------------------
+   Board
+   ------------------------------------------------------------------------- */
+.board-container {
+    background: var(--grass-green);
+    border-radius: var(--radius);
+    padding: var(--board-gap);
+    box-shadow: var(--shadow-heavy);
+    border: 3px solid var(--mud-brown);
+}
+
+#game-board {
+    border-collapse: separate;
+    border-spacing: var(--board-gap);
+    table-layout: fixed;
+}
+
+/* Each table cell is a fixed-size square */
+#game-board td {
+    width:  var(--cell-size);
+    height: var(--cell-size);
+    padding: 0;
+}
+
+/* The button inside each cell is the interactive element */
+.cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width:  100%;
+    height: 100%;
+    border: none;
+    border-radius: var(--radius-sm);
+    /* Grassy cell – subtle green gradient */
+    background: radial-gradient(ellipse at 40% 30%, #cce8a0 0%, #9ac860 55%, #7aaa40 100%);
+    cursor: default;
+    position: relative;
+    transition: background 0.15s, transform 0.1s;
+    outline: none;
+}
+
+/* Empty, non-playable cells */
+.cell.empty {
+    cursor: default;
+}
+
+/* Valid-move cells look like a muddy puddle ready to jump in */
+.cell.valid-move {
+    background: radial-gradient(ellipse at 42% 38%, #c0926a 0%, #7a4e28 50%, #512e12 100%);
+    cursor: pointer;
+}
+
+/* Puddle sheen on valid-move cells */
+.cell.valid-move::after {
+    content: "";
+    position: absolute;
+    width:  62%;
+    height: 38%;
+    top: 24%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 50% / 45%;
+    background: radial-gradient(
+        ellipse at 35% 35%,
+        rgba(210, 170, 120, 0.70) 0%,
+        rgba(120, 70, 28, 0.30) 100%
+    );
+    pointer-events: none;
+}
+
+/* Token disc */
+.token {
+    width:  var(--token-size);
+    height: var(--token-size);
+    border-radius: var(--radius-round);
+    display: block;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.38),
+                inset 0 1px 3px rgba(255, 255, 255, 0.35);
+    transition: transform 0.18s ease;
+    animation: plop 0.22s ease-out;
+}
+
+@keyframes plop {
+    0%   { transform: scale(0.45); opacity: 0.5; }
+    65%  { transform: scale(1.12); }
+    100% { transform: scale(1.00); opacity: 1;   }
+}
+
+/* Peppa token – SVG face, pink coloured ring */
+.token.peppa-token {
+    background-image: url("peppa-token.svg");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    border: 3px solid var(--peppa-pink-dark);
+}
+
+/* George token – SVG face, green coloured ring */
+.token.george-token {
+    background-image: url("george-token.svg");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    border: 3px solid var(--george-green-dark);
+}
+
+/* Flip animation for tokens that get captured */
+.token.flipping {
+    animation: flip 0.38s ease-in-out;
+}
+
+@keyframes flip {
+    0%   { transform: scaleX(1);    }
+    40%  { transform: scaleX(0.05); }
+    100% { transform: scaleX(1);    }
+}
+
+/* Focus / keyboard navigation */
+.cell:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: -3px;
+    z-index: 1;
+}
+
+.cell.valid-move:focus-visible {
+    outline-color: var(--peppa-pink-dark);
+}
+
+/* -------------------------------------------------------------------------
+   Status message
+   ------------------------------------------------------------------------- */
+.status-message {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.90);
+    backdrop-filter: blur(6px);
+    border-radius: var(--radius-sm);
+    padding: 8px 20px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--peppa-pink);
+    min-height: 2.4em;
+    display: flex;
+    align-items: center;
+    max-width: 420px;
+    text-align: center;
+}
+
+.status-message.george-turn {
+    border-left-color: var(--george-green);
+}
+
+.status-message.game-over {
+    border-left-color: var(--mud-brown);
+    background: var(--mud-pale);
+    font-size: 1.1rem;
+}
+
+/* -------------------------------------------------------------------------
+   Aside – controls and instructions
+   ------------------------------------------------------------------------- */
+aside {
+    grid-area: aside;
+    background: rgba(255, 249, 245, 0.92);
+    border-top: 2px solid var(--mud-pale);
+    padding: 16px 20px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.controls button {
+    padding: 10px 22px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    letter-spacing: 0.02em;
+}
+
+.controls button:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+#new-game-btn {
+    background: var(--peppa-pink);
+    color: #ffffff;
+    border-color: var(--peppa-pink-dark);
+}
+
+#new-game-btn:hover {
+    background: var(--peppa-pink-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+}
+
+#hint-btn {
+    background: var(--surface-raised);
+    color: var(--text-primary);
+    border-color: var(--mud-pale);
+}
+
+#hint-btn[aria-pressed="true"] {
+    background: var(--george-green-light);
+    border-color: var(--george-green);
+}
+
+#hint-btn:hover {
+    border-color: var(--george-green);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+}
+
+.instructions {
+    max-width: 340px;
+}
+
+.instructions h2 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    margin-top: 10px;
+}
+
+.instructions h2:first-child {
+    margin-top: 0;
+}
+
+.instructions ul {
+    list-style: none;
+    padding: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.instructions li {
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.4;
+}
+
+.instructions li::before {
+    content: "·";
+    position: absolute;
+    left: 0;
+    color: var(--peppa-pink);
+    font-weight: 900;
+}
+
+kbd {
+    display: inline-block;
+    padding: 1px 5px;
+    font-size: 0.78rem;
+    font-family: inherit;
+    background: var(--mud-pale);
+    border: 1px solid var(--mud-brown);
+    border-radius: 3px;
+    color: var(--text-primary);
+}
+
+/* -------------------------------------------------------------------------
+   Rules explainer – illustrated section at the bottom of the page
+   ------------------------------------------------------------------------- */
+
+.rules-explainer {
+    grid-area: rules;
+    background: rgba(255, 249, 245, 0.95);
+    border-top: 3px solid var(--mud-pale);
+    padding: 32px 24px 40px;
+}
+
+.rules-title {
+    text-align: center;
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    font-weight: 800;
+    color: var(--peppa-pink-dark);
+    margin-bottom: 28px;
+    letter-spacing: 0.01em;
+}
+
+/* Each rule is a card with text on the left and diagram on the right */
+.rule-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: var(--surface-raised);
+    border: 2px solid var(--mud-pale);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+}
+
+.rule-card:last-child {
+    margin-bottom: 0;
+}
+
+.rule-body h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--peppa-pink-dark);
+    margin-bottom: 8px;
+}
+
+.rule-body p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 6px;
+}
+
+.rule-body p:last-child {
+    margin-bottom: 0;
+}
+
+/* Diagram area */
+.rule-diagram {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    justify-content: center;
+    background: var(--sky-blue-light);
+    border-radius: var(--radius-sm);
+    padding: 16px 14px;
+    border: 1px solid var(--puddle-border);
+}
+
+.diagram-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.diagram-caption {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+
+.diagram-note {
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    text-align: center;
+    max-width: 160px;
+    line-height: 1.35;
+    margin-top: 4px;
+}
+
+.diagram-arrow,
+.diagram-vs {
+    font-size: 1.6rem;
+    color: var(--mud-brown);
+    font-weight: 900;
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+
+.diagram-vs {
+    font-size: 1rem;
+    padding: 0 4px;
+}
+
+/* ── Mini board ──────────────────────────────────────── */
+
+/* 1-row strip (5 cells wide) */
+.mini-board--row {
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+    background: var(--grass-green);
+    border: 2px solid var(--mud-brown);
+    border-radius: 6px;
+    padding: 3px;
+}
+
+/* 3×3 grid */
+.mini-board--3x3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    background: var(--grass-green);
+    border: 2px solid var(--mud-brown);
+    border-radius: 6px;
+    padding: 3px;
+}
+
+/* Individual mini cell */
+.mini-cell {
+    width:  44px;
+    height: 44px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: 1.1rem;
+    font-weight: 900;
+}
+
+/* Cell variants */
+.mc-empty {
+    background: radial-gradient(ellipse at 40% 30%, #cce8a0 0%, #9ac860 55%, #7aaa40 100%);
+}
+
+.mc-peppa {
+    background: radial-gradient(ellipse at 40% 30%, #ffd0e2 0%, #f9bbd0 60%, #f07da8 100%);
+}
+
+.mc-george {
+    background: radial-gradient(ellipse at 40% 30%, #c8eeff 0%, #9ad8ee 60%, #6fc2de 100%);
+}
+
+/* Valid-move hint cell in diagrams */
+.mc-hint {
+    background: radial-gradient(ellipse at 42% 38%, #c0926a 0%, #7a4e28 50%, #512e12 100%);
+    color: #ffe0b0;
+    font-size: 1.3rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    cursor: default;
+}
+
+/* Blocked/invalid cell */
+.mc-blocked {
+    background: radial-gradient(ellipse at 40% 30%, #cce8a0 0%, #9ac860 55%, #7aaa40 100%);
+    color: #cc2222;
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+/* Token image inside mini cell */
+.mini-cell img {
+    width:  36px;
+    height: 36px;
+    border-radius: 50%;
+    display: block;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* Newly placed token highlight */
+.new-cell {
+    outline: 3px solid #ffe066;
+    outline-offset: -3px;
+    border-radius: 5px;
+}
+
+/* Flipped token – green ring to show it changed */
+.flipped-cell {
+    outline: 3px solid var(--peppa-pink);
+    outline-offset: -3px;
+    border-radius: 5px;
+}
+
+.flip-badge {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--peppa-pink);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 900;
+    border-radius: 4px;
+    padding: 1px 4px;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* -------------------------------------------------------------------------
+   Responsive – wider screens: side-by-side layout
+   ------------------------------------------------------------------------- */
+@media (min-width: 820px) {
+    body {
+        grid-template-rows:    auto 1fr auto;
+        grid-template-columns: 1fr 280px;
+        grid-template-areas:
+            "header  header"
+            "main    aside"
+            "rules   rules";
+    }
+
+    main {
+        padding: 24px 20px;
+        justify-content: center;
+    }
+
+    aside {
+        border-top: none;
+        border-left: 2px solid var(--mud-pale);
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px 20px;
+        overflow-y: auto;
+        gap: 14px;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (min-width: 700px) {
+    .rule-card {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .rule-body {
+        flex: 1 1 260px;
+    }
+
+    .rule-diagram {
+        flex: 1 1 auto;
+        flex-wrap: nowrap;
+    }
+}
+
+/* -------------------------------------------------------------------------
+   High-contrast / reduced-motion preferences
+   ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    .token {
+        animation: none;
+    }
+    .token.flipping {
+        animation: none;
+    }
+    .cell {
+        transition: none;
+    }
+    .player-card {
+        transition: none;
+    }
+}
