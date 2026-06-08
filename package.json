@@ -1,16 +1,12 @@
 {
-  "name": "computing-2-submission",
-  "type": "module",
-  "version": "1.0.0",
-  "description": "",
-  "main": "web-app/Module.js",
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "ramda": "^0.32.0"
-  },
-  "devDependencies": {
-    "docdash": "^2.0.2",
-    "mocha": "^11.7.5"
-  }
+    "name": "muddy-puddles",
+    "version": "1.0.0",
+    "description": "Muddy Puddles Flip – A Peppa Pig themed Reversi/Othello web game.",
+    "type": "module",
+    "scripts": {
+        "test": "node --experimental-vm-modules node_modules/.bin/mocha"
+    },
+    "devDependencies": {
+        "mocha": "^10.7.3"
+    }
 }
