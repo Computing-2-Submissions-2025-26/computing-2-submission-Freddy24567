@@ -114,8 +114,9 @@ so **run `npm install` first**, then launch the app one of these ways:
 * **VS Code (easiest):** use the bundled **Run Web App – Firefox**
   launch configuration (`.vscode/launch.json`) — it opens
   `web-app/index.html` in Firefox with module loading enabled.
-* **Any browser:** serve the folder with a static HTTP server, e.g.
-  `npx http-server web-app`, then open the printed URL.
+* **Any browser:** from the **project root**, run a static HTTP server,
+  e.g. `npx http-server`, then open
+  `http://127.0.0.1:8080/web-app/index.html`.
 
 Opening `index.html` via `file://` in Chrome will not work, because
 Chrome blocks ES-module imports loaded over `file://`.
