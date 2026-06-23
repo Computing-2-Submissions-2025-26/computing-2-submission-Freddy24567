@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en-gb">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boxed Up: Spicy Special</title>
+<link rel="stylesheet" href="default.css">
+<link rel="icon" href="./assets/favicon.svg">
+<script type="module" src="main.js"></script>
+
+<header>
+    <div id="header_buttons">
+        <button id="settings_button" type="button">
+            <img class="button_icon" src="./assets/gear.svg" alt="">
+            Settings
+        </button>
+    </div>
+    <h1 id="title">
+        <img id="title_logo" src="./assets/boxedup.png" alt="Boxed Up">
+    </h1>
+    <a id="docs_link" href="../docs/">API Documentation</a>
+</header>
+
+<aside id="player_1_panel" class="sidebar" aria-label="Chef 1 information">
+    <div id="player_1_bubble" class="speech_bubble" aria-hidden="true"></div>
+    <img id="player_1_crown" class="crown" src="./assets/crown.svg"
+        alt="Match leader" hidden>
+    <img class="portrait" src="./assets/chef1.svg"
+        alt="Pixel-art portrait of Chef 1, in white robes">
+    <label class="select_label" for="player_1_name">Chef 1 name</label>
+    <input id="player_1_name" value="Chef 1">
+    <dl class="player_stats">
+        <dt>Points</dt>
+        <dd id="player_1_score">0</dd>
+        <dt>Cells covered</dt>
+        <dd id="player_1_cells">0</dd>
+        <dt>Compartments</dt>
+        <dd id="player_1_compartments">0</dd>
+        <dt>Games won</dt>
+        <dd id="player_1_wins">0</dd>
+    </dl>
+    <div id="player_1_status" class="status" aria-live="polite">
+        You're up!
+    </div>
+    <div class="decor" aria-hidden="true">
+        <img src="./assets/plant.svg" alt="">
+        <img src="./assets/sake.svg" alt="">
+    </div>
+    <button id="how_to_button" type="button">
+        <img class="button_icon" src="./assets/book.svg" alt="">
+        How to play
+    </button>
+</aside>
+
+<main tabindex="-1">
+    <img class="lantern left" src="./assets/lantern.svg" alt="">
+    <img class="lantern right" src="./assets/lantern.svg" alt="">
+    <div id="run_hud" class="run_hud" role="timer"
+        aria-label="Endless rush timer" hidden>
+        <span class="run_clock">
+            <span class="run_label">⏱</span>
+            <span id="run_time" class="run_time">1:30</span>
+        </span>
+        <div class="run_track">
+            <div id="run_bar" class="run_bar"></div>
+        </div>
+        <span class="run_stats">
+            <span class="run_stat">
+                Boxes: <strong id="run_boxes">0</strong>
+            </span>
+            <span class="run_stat run_chef_1">
+                Chef 1: <strong id="run_score_1">0</strong>
+            </span>
+            <span class="run_stat run_chef_2">
+                Chef 2: <strong id="run_score_2">0</strong>
+            </span>
+        </span>
+    </div>
+    <div id="game_board" role="group"
+        aria-label="The Boxed Up board: a nine by nine grid of cells"></div>
+    <div id="announcer" class="visually_hidden" aria-live="polite"></div>
+</main>
+
+<aside id="player_2_panel" class="sidebar" aria-label="Chef 2 information">
+    <div id="player_2_bubble" class="speech_bubble" aria-hidden="true"></div>
+    <img id="player_2_crown" class="crown" src="./assets/crown.svg"
+        alt="Match leader" hidden>
+    <img class="portrait" src="./assets/chef2.svg"
+        alt="Pixel-art portrait of Chef 2, in navy robes">
+    <label class="select_label" for="player_2_name">Chef 2 name</label>
+    <input id="player_2_name" value="Chef 2">
+    <label class="select_label" for="opponent_select">Played by</label>
+    <select id="opponent_select" autocomplete="off">
+        <option value="human" selected>Human friend</option>
+        <option value="1">Computer: Apprentice</option>
+        <option value="2">Computer: Cook</option>
+        <option value="3">Computer: Head Chef</option>
+    </select>
+    <dl class="player_stats">
+        <dt>Points</dt>
+        <dd id="player_2_score">0</dd>
+        <dt>Cells covered</dt>
+        <dd id="player_2_cells">0</dd>
+        <dt>Compartments</dt>
+        <dd id="player_2_compartments">0</dd>
+        <dt>Games won</dt>
+        <dd id="player_2_wins">0</dd>
+    </dl>
+    <div id="player_2_status" class="status" aria-live="polite">
+        Wait your turn…
+    </div>
+    <div class="decor" aria-hidden="true">
+        <img src="./assets/teapot.svg" alt="">
+        <img src="./assets/chopsticks.svg" alt="">
+    </div>
+</aside>
+
+<footer aria-label="Piece menu">
+    <div id="hint">
+        Pick a piece (1–7)<br>
+        Click to place<br>
+        R: rotate · H: hint
+    </div>
+    <div id="piece_tray" role="group" aria-label="Choose a piece"></div>
+    <button id="rotate_button" type="button">
+        Rotate<br><kbd>R</kbd>
+    </button>
+    <button id="hint_button" type="button">
+        Hint<br><kbd>H</kbd>
+    </button>
+</footer>
+
+<dialog id="how_to_dialog" aria-label="How to play">
+    <div id="how_to_content">
+    <h2>How to Play</h2>
+    <ul tabindex="0" aria-label="How to play, scrollable list">
+        <li>Two chefs take turns packing pieces into the box.</li>
+        <li>Pieces only cover empty cells — never food or
+            <img class="inline_sprite" src="./assets/garnish.svg"
+                alt="narutomaki"> garnish.</li>
+        <li>Fill a 3×3 compartment to seal it: the chef with more food
+            inside earns +5 points.</li>
+        <li>Golden <img class="inline_sprite" src="./assets/star.svg"
+            alt="star"> cells award +3 to whoever covers them.
+            Wasabi <img class="inline_sprite" src="./assets/wasabi.svg"
+            alt="wasabi"> burns −3 — sometimes worth it!</li>
+        <li>Cover the matcha <img class="inline_sprite"
+            src="./assets/matcha.svg" alt="matcha"> to take an
+            extra turn at once. Omakase mode (in settings) hides
+            all specials until they are covered!</li>
+        <li>The compartment marked with a star is the VIP order —
+            own it when sealed for +10 instead of +5. And whoever
+            packs the very last piece slams the lid for +2!</li>
+        <li>Fair starts: the first box's starter is random, then the
+            loser of each box packs first in the next one
+            (draws alternate).</li>
+        <li>When nothing fits anywhere, the box is sealed.
+            Most points (cells + bonuses) wins.</li>
+        <li>Mouse only: click a piece (or right-click anywhere on the
+            box to rotate it), then click a cell to pack it.</li>
+        <li>Keyboard only: <kbd>1</kbd>–<kbd>7</kbd> pick a piece
+            (focus jumps back to the box), arrow keys move,
+            <kbd>Enter</kbd> packs, <kbd>R</kbd> rotates.</li>
+        <li>Chef 2 can be a friend or a computer chef — pick under
+            their name. Raise the difficulty in settings with more
+            garnish.</li>
+        <li>Turn on <strong>Endless rush</strong> in settings to race a
+            countdown: pack as many boxes as you can before time runs
+            out — each full box is banked and a fresh one is dealt, and
+            the higher running total wins when the clock hits zero.</li>
+    </ul>
+    <button class="close_button" type="button" autofocus>
+        Back to the kitchen
+    </button>
+    </div>
+</dialog>
+
+<dialog id="settings_dialog" aria-label="Settings">
+    <h2>Settings</h2>
+    <label class="select_label" for="garnish_select">
+        Difficulty — garnish in the next box
+    </label>
+    <select id="garnish_select" autocomplete="off">
+        <option value="3">Calm — 3 garnish</option>
+        <option value="5" selected>Classic — 5 garnish</option>
+        <option value="8">Crowded — 8 garnish</option>
+    </select>
+    <label id="omakase_label">
+        <input id="omakase_checkbox" type="checkbox"
+            autocomplete="off">
+        Omakase — specials hidden until covered
+    </label>
+    <label id="endless_label">
+        <input id="endless_checkbox" type="checkbox"
+            autocomplete="off">
+        Endless rush — pack as many boxes as you can before time
+    </label>
+    <label class="select_label" for="endless_select">
+        Service time — the endless-rush countdown
+    </label>
+    <select id="endless_select" autocomplete="off">
+        <option value="60">Brisk — 60 seconds</option>
+        <option value="90" selected>Standard — 90 seconds</option>
+        <option value="120">Relaxed — 120 seconds</option>
+    </select>
+    <label id="sound_label">
+        <input id="sound_checkbox" type="checkbox" checked
+            autocomplete="off">
+        Sound effects
+    </label>
+    <label id="motion_label">
+        <input id="reduce_motion_checkbox" type="checkbox"
+            autocomplete="off">
+        Reduce animations
+    </label>
+    <button id="restart_button" type="button">Start a new box</button>
+    <button class="close_button" type="button" autofocus>Close</button>
+</dialog>
+
+<dialog id="result_dialog" aria-label="Game over message">
+    <div id="result_content">
+    <h2 id="result_heading">Box Sealed!</h2>
+    <div class="result_subtitle">
+        <img class="blossom_icon" src="./assets/blossom.svg" alt="">
+        <span id="result_winner">Chef 1 wins!</span>
+        <img class="blossom_icon" src="./assets/blossom.svg" alt="">
+    </div>
+    <div id="result_flavor"></div>
+    <div id="result_scores">
+        <div id="result_row_1" class="result_row chef_1_row">
+            <span id="result_name_1" class="result_name">Chef 1</span>
+            <span id="result_points_1" class="result_points">0 pts</span>
+            <span id="result_detail_1" class="result_detail"></span>
+        </div>
+        <div id="result_row_2" class="result_row chef_2_row">
+            <span id="result_name_2" class="result_name">Chef 2</span>
+            <span id="result_points_2" class="result_points">0 pts</span>
+            <span id="result_detail_2" class="result_detail"></span>
+        </div>
+    </div>
+    <button id="new_game_button" type="button" autofocus>
+        <span class="btn_arrow" aria-hidden="true"></span>
+        Next Order
+        <span class="btn_arrow" aria-hidden="true"></span>
+    </button>
+    </div>
+</dialog>

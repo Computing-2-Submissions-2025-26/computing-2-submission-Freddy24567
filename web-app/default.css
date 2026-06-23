@@ -1,0 +1,1652 @@
+@font-face {
+    font-family: "Press Start 2P";
+    src: url("./assets/PressStart2P-Regular.ttf");
+    /* Licence: ./assets/OFL.txt */
+}
+
+:root {
+    --banner-height: 128px;
+    --footer-height: 140px;
+    --sidebar-width: 260px;
+    /* Vertical room the Endless-rush timer HUD needs above the box;
+       zero when the HUD is hidden. Set on body.endless below. */
+    --hud-reserve: 0px;
+
+    --night: #15100b;
+    --wood-dark: #241710;
+    --wood: #2e1d13;
+    --wood-light: #3d2719;
+    --beam: #1c120c;
+    --gold: #d9a949;
+    --gold-bright: #f0c75e;
+    --parchment: #f1e6cd;
+    --paper-shade: #ded2b4;
+    --box-lacquer: #a8472a;
+    --box-rim: #4a2410;
+    --compartment-floor: #b85a36;
+    --red-ink: #ff7a6a;
+    --player-1-colour: #e76f51;
+    --player-1-deep: #b34226;
+    --player-1-tint: #fbf0db;
+    --player-2-colour: #2a9d8f;
+    --player-2-deep: #1d6e64;
+    --player-2-tint: #d8eaf2;
+    --legal-preview: #8bc34a;
+    --illegal-preview: #8a8a8a;
+    --focus-colour: #ffd166;
+    --seal-neutral: #b9a585;
+    --frame-dark: #2b1708;
+    --frame: #7c4a23;
+    --frame-light: #a06a35;
+    --wood-button: linear-gradient(180deg, #8a5526 0%, #6b3d18 100%);
+    --wood-grain:
+        repeating-linear-gradient(
+            90deg,
+            #0003 0px,
+            #0000 2px,
+            #0000 16px,
+            #0002 18px
+        ),
+        repeating-linear-gradient(
+            0deg,
+            #9a6030 0px,
+            #8a5526 4px,
+            #7c4a1f 8px,
+            #8f5a2a 12px
+        );
+
+    font-family: "Press Start 2P", "Courier New", monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.visually_hidden {
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+body {
+    background: #2b6cb0 url("./assets/background.png") center / cover
+        no-repeat;
+    color: var(--parchment);
+    display: grid;
+    grid-template-areas:
+        "header header header header header"
+        ". left main right ."
+        "footer footer footer footer footer";
+    grid-template-columns:
+        1fr var(--sidebar-width) auto var(--sidebar-width) 1fr;
+    grid-template-rows: var(--banner-height) 1fr var(--footer-height);
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    width: 100%;
+}
+
+img,
+.portrait,
+.inline_sprite {
+    image-rendering: pixelated;
+}
+
+/* Header: a roof beam with a hanging wooden sign. */
+
+header {
+    align-items: center;
+    background: none;
+    display: flex;
+    grid-area: header;
+    justify-content: center;
+    position: relative;
+}
+
+#header_buttons {
+    display: flex;
+    gap: 0.6em;
+    left: 1em;
+    position: absolute;
+}
+
+#header_buttons button {
+    align-items: center;
+    background: var(--wood-grain);
+    border: 3px solid var(--frame-dark);
+    border-radius: 8px;
+    box-shadow: inset 0 2px 0 #c98a44, inset 0 -3px 0 #4a2410,
+        0 3px 0 #000a;
+    color: #f4e3c2;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-size: 16px;
+    height: 46px;
+    justify-content: center;
+    width: 46px;
+}
+
+.button_icon {
+    height: 18px;
+    width: auto;
+}
+
+#title {
+    line-height: 0;
+    margin: 0;
+}
+
+#title img {
+    filter: drop-shadow(0 5px 0 #0009);
+    height: calc(var(--banner-height) - 8px);
+    width: auto;
+}
+
+
+#docs_link {
+    background: var(--wood-grain);
+    border: 3px solid var(--frame-dark);
+    border-radius: 8px;
+    box-shadow: inset 0 2px 0 #c98a44, inset 0 -3px 0 #4a2410,
+        0 3px 0 #000a;
+    color: var(--gold-bright);
+    font-size: 10px;
+    padding: 1.4ex 1em;
+    position: absolute;
+    right: 1em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+#docs_link:hover,
+#header_buttons button:hover {
+    background: var(--wood);
+    color: var(--focus-colour);
+}
+
+/* Sidebars: framed wooden stalls, one per chef. */
+
+.sidebar {
+    align-items: center;
+    background: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1ex;
+    overflow-y: auto;
+    padding: 1ex 0.8em;
+    scrollbar-width: none;
+    text-align: center;
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+#player_1_panel {
+    grid-area: left;
+}
+
+#player_2_panel {
+    grid-area: right;
+}
+
+.portrait {
+    --portrait-backdrop: linear-gradient(180deg, #223044 0%, #31435c 100%);
+    background:
+        var(--portrait-backdrop) content-box,
+        var(--wood-grain) border-box;
+    border: 9px solid #0000;
+    border-radius: 10px;
+    box-shadow:
+        0 0 0 3px var(--frame-dark),
+        inset 0 0 0 2px var(--frame-dark),
+        0 6px 0 #000a;
+    width: min(118px, 18vh);
+}
+
+#player_1_panel .portrait {
+    --portrait-backdrop:
+        linear-gradient(180deg, #c75b40 0%, #93331f 100%);
+    box-shadow:
+        0 0 0 3px var(--frame-dark),
+        inset 0 0 0 2px var(--player-1-colour),
+        0 6px 0 #000a;
+}
+
+#player_2_panel .portrait {
+    --portrait-backdrop:
+        linear-gradient(180deg, #5b8fc4 0%, #2e5a8c 100%);
+    box-shadow:
+        0 0 0 3px var(--frame-dark),
+        inset 0 0 0 2px var(--player-2-colour),
+        0 6px 0 #000a;
+}
+
+.sidebar input {
+    background: #1d1006;
+    border: 4px ridge #9c6432;
+    border-radius: 6px;
+    box-shadow: 0 0 0 2px var(--frame-dark);
+    color: var(--gold-bright);
+    font: inherit;
+    font-size: 11px;
+    padding: 1.2ex 0.4em;
+    text-align: center;
+    text-transform: uppercase;
+    width: 90%;
+}
+
+.player_stats {
+    background: #1a110bee;
+    border: 4px ridge #9c6432;
+    border-radius: 6px;
+    box-shadow: 0 0 0 2px var(--frame-dark), 0 5px 10px #0008;
+    display: grid;
+    font-size: 10px;
+    gap: 1.3ex 0.6em;
+    grid-template-columns: 1fr auto;
+    margin: 0;
+    padding: 1.3ex 0.8em;
+    text-transform: uppercase;
+    width: 95%;
+}
+
+.player_stats dt {
+    text-align: left;
+}
+
+.player_stats dd {
+    color: var(--red-ink);
+    margin: 0;
+    text-align: right;
+}
+
+.status {
+    font-size: 11px;
+    min-height: 3ex;
+    text-shadow: 2px 2px 0 #000;
+    text-transform: uppercase;
+}
+
+#player_1_status {
+    color: var(--red-ink);
+}
+
+#player_2_status {
+    color: #5fd0c0;
+}
+
+.decor {
+    align-items: flex-end;
+    display: flex;
+    filter: drop-shadow(0 3px 1px #0009);
+    gap: 0.8em;
+    margin-top: auto;
+}
+
+.decor img {
+    height: 30px;
+    width: auto;
+}
+
+#how_to_button {
+    align-items: center;
+    background: var(--wood-grain);
+    border: 3px solid var(--frame-dark);
+    border-radius: 8px;
+    box-shadow: inset 0 2px 0 #c98a44, inset 0 -3px 0 #4a2410,
+        0 3px 0 #000a;
+    color: #f4e3c2;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-size: 10px;
+    gap: 0.6em;
+    padding: 1.4ex 1em;
+    text-transform: uppercase;
+}
+
+#how_to_button .button_icon {
+    height: 15px;
+}
+
+#how_to_button:hover {
+    color: var(--focus-colour);
+}
+
+/* The Boxed Up board on its table. */
+
+main {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    grid-area: main;
+    justify-content: center;
+    padding: 1.5ex;
+    position: relative;
+}
+
+.lantern {
+    filter: drop-shadow(0 0 16px #ff9d3dcc);
+    position: absolute;
+    top: 2ex;
+    width: 44px;
+}
+
+.lantern.left {
+    left: -46px;
+}
+
+.lantern.right {
+    right: -46px;
+}
+
+#game_board {
+    aspect-ratio: 1;
+    background:
+        linear-gradient(135deg, #c2603a 0%, var(--box-lacquer) 60%)
+            content-box,
+        linear-gradient(180deg, #ffffff1e 0%, #0000 25%) border-box,
+        var(--wood-grain) border-box;
+    border: 4px solid var(--frame-dark);
+    border-radius: 12px;
+    box-shadow:
+        0 14px 30px #000c,
+        inset 0 0 0 2px #00000033;
+    display: grid;
+    gap: 9px;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 18px;
+    width: min(
+        calc(100vw - 2 * var(--sidebar-width) - 6ex),
+        calc(
+            100vh - var(--banner-height) - var(--footer-height)
+            - var(--hud-reserve) - 4ex
+        )
+    );
+}
+
+.compartment {
+    background: var(--compartment-floor);
+    border: 2px solid var(--box-rim);
+    border-radius: 6px;
+    display: grid;
+    gap: 3px;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 5px;
+    transition: box-shadow 0.4s;
+}
+
+.compartment.sealed_1 {
+    box-shadow: inset 0 0 0 3px var(--player-1-colour),
+        0 0 12px var(--player-1-deep);
+}
+
+.compartment.sealed_2 {
+    box-shadow: inset 0 0 0 3px var(--player-2-colour),
+        0 0 12px var(--player-2-deep);
+}
+
+.compartment.sealed_0 {
+    box-shadow: inset 0 0 0 3px var(--seal-neutral);
+}
+
+.compartment.just_sealed {
+    animation: seal_pulse 0.9s ease-out;
+}
+
+@keyframes seal_pulse {
+    0% {
+        filter: brightness(1);
+        transform: scale(1);
+    }
+    40% {
+        filter: brightness(1.6);
+        transform: scale(1.04);
+    }
+    100% {
+        filter: brightness(1);
+        transform: scale(1);
+    }
+}
+
+.compartment button {
+    aspect-ratio: 1;
+    background-color: var(--parchment);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 88%;
+    border: 1px solid var(--paper-shade);
+    border-radius: 4px;
+    box-shadow: inset 0 -2px 0 var(--paper-shade);
+    image-rendering: pixelated;
+    padding: 0;
+}
+
+.compartment button:focus-visible {
+    outline: 3px solid var(--focus-colour);
+    outline-offset: -2px;
+    z-index: 1;
+}
+
+.compartment button.player_1 {
+    background-color: var(--player-1-tint);
+    border: 2px solid var(--player-1-deep);
+    box-shadow: none;
+}
+
+.compartment button.player_2 {
+    background-color: var(--player-2-tint);
+    border: 2px solid var(--player-2-deep);
+    box-shadow: none;
+}
+
+.compartment button.garnish {
+    background-color: #efe3c2;
+    background-image: url("./assets/garnish.svg");
+    border: 1px dotted #b9a585;
+}
+
+.food_cucumber {
+    background-image: url("./assets/cucumber.svg");
+}
+
+.food_onigiri {
+    background-image: url("./assets/onigiri.svg");
+}
+
+.food_rice {
+    background-image: url("./assets/rice.svg");
+}
+
+.food_salmon {
+    background-image: url("./assets/salmon.svg");
+}
+
+.food_tamago {
+    background-image: url("./assets/tamago.svg");
+}
+
+.food_tempura {
+    background-image: url("./assets/tempura.svg");
+}
+
+.compartment button.just_placed {
+    animation: pop 0.35s ease-out;
+}
+
+@keyframes pop {
+    0% {
+        transform: scale(0.4);
+    }
+    65% {
+        transform: scale(1.15);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.compartment button.preview_legal {
+    box-shadow: inset 0 0 0 4px var(--legal-preview);
+}
+
+.compartment button.preview_illegal {
+    box-shadow: inset 0 0 0 4px var(--illegal-preview);
+}
+
+/* The counter: hint, piece tray, and rotate button. */
+
+footer {
+    align-items: center;
+    background:
+        linear-gradient(180deg, #ffffff22 0%, #0000 30%, #00000033 100%),
+        var(--wood-grain);
+    border: 3px solid var(--frame-dark);
+    border-radius: 12px;
+    box-shadow: inset 0 2px 0 #c98a44, inset 0 -4px 0 #4a2410,
+        0 6px 16px #0009;
+    display: flex;
+    gap: 1em;
+    grid-area: footer;
+    justify-content: center;
+    margin: 0 1.5ex 1.5ex;
+    padding: 1.5ex;
+}
+
+#hint {
+    background: #1d1006;
+    border: 3px ridge #8a5526;
+    border-radius: 6px;
+    color: var(--paper-shade);
+    font-size: 9px;
+    line-height: 2;
+    padding: 1.5ex 1em;
+    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+#piece_tray {
+    display: flex;
+    gap: 0.7em;
+}
+
+.piece_button {
+    align-items: center;
+    background:
+        linear-gradient(180deg, var(--wood-light) 0%, var(--wood-dark) 100%);
+    border: 3px ridge #8a5526;
+    border-radius: 8px;
+    color: var(--parchment);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    font: inherit;
+    font-size: 8px;
+    gap: 1ex;
+    justify-content: flex-end;
+    min-height: 96px;
+    min-width: 86px;
+    padding: 1ex 0.6em;
+    text-transform: uppercase;
+}
+
+.piece_button[aria-pressed="true"] {
+    border-color: var(--gold-bright);
+    box-shadow: 0 0 0 2px var(--gold-bright), 0 0 14px #f0c75e88;
+    color: var(--gold-bright);
+}
+
+.piece_button:focus-visible,
+#rotate_button:focus-visible,
+#hint_button:focus-visible,
+#how_to_button:focus-visible,
+#header_buttons button:focus-visible,
+.close_button:focus-visible,
+#restart_button:focus-visible,
+#new_game_button:focus-visible {
+    outline: 3px solid var(--focus-colour);
+    outline-offset: 2px;
+}
+
+.mini_grid {
+    display: grid;
+    gap: 1px;
+}
+
+.mini_grid div {
+    background-color: transparent;
+    height: 17px;
+    width: 17px;
+}
+
+.mini_grid div.mini_filled {
+    background-color: var(--parchment);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 94%;
+    border-radius: 2px;
+    image-rendering: pixelated;
+}
+
+#rotate_button,
+#hint_button {
+    background: var(--beam);
+    border: 3px ridge #9c6432;
+    border-radius: 8px;
+    color: var(--parchment);
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+    line-height: 2;
+    padding: 1.5ex 1.2em;
+    text-transform: uppercase;
+}
+
+#rotate_button:hover,
+#hint_button:hover {
+    color: var(--focus-colour);
+}
+
+#rotate_button kbd,
+#hint_button kbd,
+dialog kbd {
+    background: var(--wood-light);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    font: inherit;
+    padding: 0.2ex 0.5em;
+}
+
+/* Dialogs: wooden notice boards. */
+
+dialog {
+    background:
+        linear-gradient(180deg, #00000088 0%, #000000aa 100%),
+        var(--wood-grain);
+    border: 4px ridge #9c6432;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px #000d, inset 0 0 0 2px var(--gold);
+    color: var(--parchment);
+    font-size: 11px;
+    line-height: 2;
+    max-width: 36em;
+    padding: 4ex 2.5em;
+    text-align: center;
+}
+
+dialog::backdrop {
+    background: #000b;
+}
+
+dialog h2 {
+    color: var(--gold-bright);
+    font-size: 20px;
+    font-weight: normal;
+    margin: 0 0 2.5ex;
+    text-shadow: 2px 2px 0 #000;
+    text-transform: uppercase;
+}
+
+dialog ul {
+    margin: 0 0 3ex;
+    padding-left: 1.4em;
+    text-align: left;
+}
+
+dialog li {
+    margin-bottom: 1.6ex;
+}
+
+.inline_sprite {
+    height: 18px;
+    vertical-align: middle;
+    width: 18px;
+}
+
+#motion_label {
+    cursor: pointer;
+    display: block;
+    margin-bottom: 3ex;
+}
+
+#result_winner {
+    color: var(--gold-bright);
+    font-size: 15px;
+    margin-bottom: 2ex;
+}
+
+#result_message {
+    margin-bottom: 3ex;
+}
+
+.close_button,
+#restart_button,
+#new_game_button {
+    background: var(--beam);
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    color: var(--parchment);
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+    margin: 0 0.5em;
+    padding: 1.6ex 1.2em;
+    text-transform: uppercase;
+}
+
+.close_button:hover,
+#restart_button:hover,
+#new_game_button:hover {
+    color: var(--focus-colour);
+}
+
+/* Respect users who prefer less motion. */
+
+body.reduced_motion *,
+body.reduced_motion *::before,
+body.reduced_motion *::after {
+    animation: none !important;
+    transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .compartment.just_sealed,
+    .compartment button.just_placed {
+        animation: none;
+    }
+
+    .compartment {
+        transition: none;
+    }
+}
+
+/* ——— Deluxe additions: transitions and motion ——— */
+
+/* Compartments slide into place when a fresh box arrives. */
+
+.compartment.dealt {
+    animation: deal_in 0.45s ease-out backwards;
+}
+
+@keyframes deal_in {
+    0% {
+        opacity: 0;
+        transform: translateY(-14px) scale(0.85);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Changed statistics bump to draw the eye. */
+
+.player_stats dd {
+    transition: color 0.2s;
+}
+
+.player_stats dd.bump {
+    animation: stat_bump 0.4s ease-out;
+}
+
+@keyframes stat_bump {
+    0% {
+        transform: scale(1);
+    }
+    40% {
+        color: var(--gold-bright);
+        transform: scale(1.5);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* The active chef's stall glows on their turn. */
+
+.sidebar {
+    transition: box-shadow 0.4s;
+}
+
+#player_1_panel.active .portrait {
+    box-shadow: 0 0 0 3px var(--frame-dark),
+        0 0 20px var(--player-1-colour);
+}
+
+#player_2_panel.active .portrait {
+    box-shadow: 0 0 0 3px var(--frame-dark),
+        0 0 20px var(--player-2-colour);
+}
+
+/* Pieces lift off the counter under the pointer. */
+
+.piece_button {
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.piece_button:hover {
+    transform: translateY(-4px);
+}
+
+/* Cells ease between colours; dialogs drift in. */
+
+.compartment button {
+    transition: background-color 0.2s, box-shadow 0.15s;
+}
+
+dialog[open] {
+    animation: drift_in 0.25s ease-out;
+}
+
+@keyframes drift_in {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Selects in the side panels and settings. */
+
+.select_label {
+    font-size: 9px;
+    text-shadow: 2px 2px 0 #000;
+    text-transform: uppercase;
+}
+
+select {
+    background: var(--beam);
+    border: 2px solid var(--gold);
+    border-radius: 6px;
+    color: var(--parchment);
+    cursor: pointer;
+    font: inherit;
+    font-size: 9px;
+    padding: 1ex 0.4em;
+    text-transform: uppercase;
+    width: 95%;
+}
+
+dialog select {
+    display: block;
+    margin: 0 auto 3ex;
+    width: auto;
+}
+
+select:focus-visible {
+    outline: 3px solid var(--focus-colour);
+    outline-offset: 2px;
+}
+
+.sidebar input:disabled {
+    border-bottom-color: transparent;
+    opacity: 0.9;
+}
+
+
+/* Layout rhythm: consistent widths, heights, and spacing. */
+
+.sidebar input,
+.sidebar select,
+.player_stats {
+    width: min(212px, 94%);
+}
+
+.sidebar input {
+    box-shadow: 0 0 0 2px var(--frame-dark), inset 0 0 0 1px #f0c75e55;
+}
+
+.player_stats {
+    box-shadow: 0 0 0 2px var(--frame-dark), inset 0 0 0 1px #f0c75e33,
+        0 5px 10px #0008;
+    gap: 1.1ex 0.6em;
+}
+
+#hint,
+#rotate_button,
+#hint_button {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    height: 100px;
+    justify-content: center;
+}
+
+.piece_button {
+    min-height: 100px;
+}
+
+footer {
+    gap: 0.9em;
+}
+
+.lantern {
+    top: 5ex;
+    width: 48px;
+}
+
+.decor img {
+    height: 26px;
+}
+
+@media (max-height: 860px) {
+    .decor {
+        display: none;
+    }
+}
+
+
+/* The "Box Sealed!" order ticket, framed by the box-lid artwork. */
+
+#result_dialog {
+    aspect-ratio: 1536 / 1024;
+    background:
+        url("./assets/boxsealed-frame.png") center / 100% 100% no-repeat;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    color: #6b4a2a;
+    max-width: none;
+    overflow: visible;
+    padding: 0;
+    width: min(820px, 94vw, 126vh);
+}
+
+#result_content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2ex;
+    height: 53%;
+    justify-content: flex-start;
+    left: 25%;
+    position: absolute;
+    text-align: center;
+    top: 35%;
+    width: 50%;
+}
+
+#result_content > * {
+    flex-shrink: 0;
+}
+
+#result_dialog h2 {
+    color: #f5c526;
+    font-size: clamp(15px, 3.2vw, 27px);
+    margin: 0;
+    text-shadow:
+        3px 0 0 #7a4a1e,
+        -3px 0 0 #7a4a1e,
+        0 3px 0 #7a4a1e,
+        0 -3px 0 #7a4a1e,
+        3px 3px 0 #7a4a1e,
+        -3px 3px 0 #7a4a1e,
+        3px -3px 0 #7a4a1e,
+        -3px -3px 0 #7a4a1e,
+        0 5px 0 #00000044;
+    white-space: nowrap;
+}
+
+.result_subtitle {
+    align-items: center;
+    color: #7a4a23;
+    display: flex;
+    font-size: clamp(10px, 1.6vw, 14px);
+    gap: 0.8em;
+    justify-content: center;
+}
+
+#result_winner {
+    font-size: inherit;
+    margin: 0;
+}
+
+.blossom_icon {
+    width: 16px;
+}
+
+#result_scores {
+    background: #fdf3da;
+    border: 4px solid #8a2f1d;
+    border-radius: 10px;
+    box-shadow: 0 0 0 2px var(--frame-dark), inset 0 0 8px #8a2f1d33;
+    overflow: hidden;
+    width: 100%;
+}
+
+.result_row {
+    align-items: center;
+    display: grid;
+    gap: 0.4ex 1em;
+    grid-template-columns: 1fr auto;
+    padding: 0.8ex 1.2em;
+    text-align: left;
+}
+
+.result_row + .result_row {
+    border-top: 3px solid #8a2f1d;
+}
+
+.result_name {
+    font-size: clamp(9px, 1.4vw, 12px);
+    text-transform: uppercase;
+}
+
+.chef_1_row .result_name {
+    color: #b3372a;
+}
+
+.chef_2_row .result_name {
+    color: #2c537e;
+}
+
+.result_points {
+    color: #6b4a2a;
+    font-size: clamp(10px, 1.5vw, 13px);
+}
+
+.result_detail {
+    color: #7c5a2f;
+    font-size: clamp(7px, 1vw, 8px);
+    grid-column: 1 / -1;
+    text-transform: uppercase;
+}
+
+.winner_row {
+    background: #f9e7a8;
+}
+
+#new_game_button {
+    align-items: center;
+    background: linear-gradient(180deg, #6cb547 0%, #4a8f2e 60%,
+        #3a7522 100%);
+    border: 3px solid #1d3d12;
+    border-radius: 8px;
+    box-shadow: inset 0 2px 0 #9ad879, 0 4px 0 #1d3d12;
+    color: #f4f0dc;
+    display: inline-flex;
+    font-size: clamp(10px, 1.6vw, 13px);
+    gap: 1em;
+    margin: 0;
+    padding: 1.6ex 1.8em;
+    text-shadow: 1px 1px 0 #1d3d12;
+}
+
+#new_game_button:hover {
+    color: #fff;
+    filter: brightness(1.08);
+}
+
+.btn_arrow {
+    border-bottom: 7px solid transparent;
+    border-left: 10px solid #f4f0dc;
+    border-top: 7px solid transparent;
+    display: inline-block;
+    height: 0;
+    width: 0;
+}
+
+.food_umeboshi {
+    background-image: url("./assets/umeboshi.svg");
+}
+
+@media (max-width: 1080px) {
+    #hint {
+        display: none;
+    }
+}
+
+
+/* Spicy Special: stars, wasabi, chatter, and shakes. */
+
+.sidebar {
+    position: relative;
+}
+
+#game_board button {
+    overflow: visible;
+    position: relative;
+}
+
+#game_board button.star_cell:not(.player_1):not(.player_2) {
+    background-image: url("./assets/star.svg");
+    background-size: 72%;
+}
+
+#game_board button.wasabi_cell:not(.player_1):not(.player_2) {
+    background-image: url("./assets/wasabi.svg");
+    background-size: 72%;
+}
+
+#game_board button.player_1.star_cell,
+#game_board button.player_2.star_cell {
+    box-shadow: inset 0 0 0 3px #f5c526;
+}
+
+#game_board button.player_1.wasabi_cell,
+#game_board button.player_2.wasabi_cell {
+    box-shadow: inset 0 0 0 3px #5f9c34;
+}
+
+.score_float {
+    animation: float_up 0.9s ease-out forwards;
+    font-size: 11px;
+    left: 50%;
+    pointer-events: none;
+    position: absolute;
+    text-shadow: 2px 2px 0 #000;
+    top: -4px;
+    transform: translateX(-50%);
+    z-index: 3;
+}
+
+.score_float.gain {
+    color: #ffd95e;
+}
+
+.score_float.loss {
+    color: #9ef07a;
+}
+
+@keyframes float_up {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -30px);
+    }
+}
+
+.speech_bubble {
+    background: #fdf3da;
+    border: 3px solid var(--frame-dark);
+    border-radius: 8px;
+    color: #6b4a2a;
+    font-size: 8px;
+    left: 50%;
+    line-height: 1.6;
+    max-width: 92%;
+    opacity: 0;
+    padding: 1ex 0.8em;
+    pointer-events: none;
+    position: absolute;
+    text-transform: uppercase;
+    top: 124px;
+    transform: translateX(-50%);
+    transition: opacity 0.2s, transform 0.2s;
+    width: max-content;
+    z-index: 4;
+}
+
+.speech_bubble.visible {
+    opacity: 1;
+    transform: translate(-50%, -4px);
+}
+
+@keyframes board_shake {
+    0% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-8px);
+    }
+    40% {
+        transform: translateX(7px);
+    }
+    60% {
+        transform: translateX(-5px);
+    }
+    80% {
+        transform: translateX(3px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+#game_board.shake {
+    animation: board_shake 0.45s;
+}
+
+
+/* Ultimate edition: framed rules, crowns, banners, and confetti. */
+
+#how_to_dialog {
+    aspect-ratio: 1024 / 1536;
+    background:
+        url("./assets/howtoplay-frame.png") center / 100% 100% no-repeat;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    color: #6b4a2a;
+    max-width: none;
+    overflow: visible;
+    padding: 0;
+    width: min(470px, 92vw, 56vh);
+}
+
+#how_to_content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2ex;
+    height: 71%;
+    left: 13%;
+    position: absolute;
+    text-align: center;
+    top: 21%;
+    width: 74%;
+}
+
+#how_to_dialog h2 {
+    color: #8a5526;
+    font-size: clamp(13px, 2.2vw, 19px);
+    margin: 0;
+    text-shadow: 1px 1px 0 #f4e4bc;
+    white-space: nowrap;
+}
+
+#how_to_dialog ul {
+    flex: 1;
+    font-size: clamp(7px, 1.05vw, 9px);
+    line-height: 2;
+    margin: 5ex 0 0;
+    overflow-y: auto;
+    padding-left: 1.4em;
+    scrollbar-width: thin;
+    text-align: left;
+}
+
+#how_to_dialog li {
+    margin-bottom: 1.4ex;
+}
+
+#how_to_dialog kbd {
+    background: #efe0b8;
+    border: 1px solid #8a5526;
+    border-radius: 4px;
+    color: inherit;
+    padding: 0 0.4em;
+}
+
+#how_to_dialog .close_button {
+    align-self: center;
+    flex-shrink: 0;
+}
+
+.crown {
+    filter: drop-shadow(0 2px 0 #0008);
+    left: 50%;
+    position: absolute;
+    top: 2px;
+    transform: translateX(-50%);
+    width: 38px;
+    z-index: 5;
+}
+
+#game_board {
+    position: relative;
+}
+
+.portrait.bounce {
+    animation: portrait_bounce 0.6s ease-out;
+}
+
+.portrait.wince {
+    animation: portrait_wince 0.55s ease-out;
+}
+
+@keyframes portrait_bounce {
+    0% {
+        transform: translateY(0);
+    }
+    35% {
+        transform: translateY(-10px);
+    }
+    65% {
+        transform: translateY(2px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+@keyframes portrait_wince {
+    0% {
+        transform: rotate(0);
+    }
+    25% {
+        transform: rotate(-5deg);
+    }
+    55% {
+        transform: rotate(4deg);
+    }
+    100% {
+        transform: rotate(0);
+    }
+}
+
+#game_board button.reject {
+    animation: reject_flash 0.4s ease-out;
+}
+
+@keyframes reject_flash {
+    0% {
+        box-shadow: inset 0 0 0 5px #d23b4a;
+    }
+    100% {
+        box-shadow: inset 0 0 0 0 #d23b4a00;
+    }
+}
+
+.mega_banner {
+    animation: mega_pop 1.25s ease-out forwards;
+    color: #f5c526;
+    font-size: clamp(18px, 3vw, 30px);
+    left: 50%;
+    pointer-events: none;
+    position: absolute;
+    text-shadow:
+        3px 0 0 #7a4a1e,
+        -3px 0 0 #7a4a1e,
+        0 3px 0 #7a4a1e,
+        0 -3px 0 #7a4a1e,
+        0 6px 0 #00000066;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    z-index: 6;
+}
+
+@keyframes mega_pop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.3);
+    }
+    25% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15);
+    }
+    45% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.burst_sparkle {
+    animation: sparkle_pop 1.5s ease-out forwards;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    width: 22px;
+    z-index: 5;
+}
+
+@keyframes sparkle_pop {
+    0% {
+        opacity: 0;
+        transform: scale(0.2);
+    }
+    30% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.4);
+    }
+}
+
+.confetti {
+    animation: confetti_fall 2.6s linear forwards;
+    pointer-events: none;
+    position: fixed;
+    top: -40px;
+    width: 22px;
+    z-index: 99;
+}
+
+@keyframes confetti_fall {
+    0% {
+        opacity: 1;
+        transform: translateY(0) rotate(0);
+    }
+    85% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(112vh) rotate(540deg);
+    }
+}
+
+#result_flavor {
+    color: #9a7748;
+    font-size: clamp(7px, 1.1vw, 9px);
+    text-transform: uppercase;
+}
+
+#title img {
+    animation: logo_bob 3.5s ease-in-out infinite;
+}
+
+@keyframes logo_bob {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.piece_button[aria-pressed="true"] .mini_grid {
+    animation: tray_wiggle 0.35s ease;
+}
+
+@keyframes tray_wiggle {
+    0% {
+        transform: rotate(0);
+    }
+    30% {
+        transform: rotate(-7deg);
+    }
+    65% {
+        transform: rotate(6deg);
+    }
+    100% {
+        transform: rotate(0);
+    }
+}
+
+
+/* Matcha boost, omakase, and the settings button label. */
+
+#game_board button.matcha_cell:not(.player_1):not(.player_2) {
+    background-image: url("./assets/matcha.svg");
+    background-size: 72%;
+}
+
+#game_board button.player_1.matcha_cell,
+#game_board button.player_2.matcha_cell {
+    box-shadow: inset 0 0 0 3px #7ec850;
+}
+
+#header_buttons #settings_button {
+    font-size: 10px;
+    gap: 0.5em;
+    padding: 0 1em;
+    text-transform: uppercase;
+    width: auto;
+}
+
+#omakase_label,
+#sound_label {
+    cursor: pointer;
+    display: block;
+    margin-bottom: 2ex;
+}
+
+/* The VIP order compartment wears a golden corner star. */
+
+.compartment.vip {
+    border-color: #f5c526;
+}
+
+.compartment.vip::after {
+    background: url("./assets/star.svg") center / contain no-repeat;
+    content: "";
+    height: 16px;
+    position: absolute;
+    right: -7px;
+    top: -7px;
+    width: 16px;
+    z-index: 2;
+}
+
+
+/* Narrow windows: slim the chef columns so the box keeps room. */
+
+@media (max-width: 1150px) {
+    :root {
+        --sidebar-width: 205px;
+    }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   Endless rush: a countdown-and-tally HUD above the box. Presentation
+   only — the clock is driven from main.js and every box's score comes
+   from the game module. Inherits the global reduced-motion handling.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* When Endless rush is on, the box leaves room for the timer HUD so
+   it can never grow down over the piece tray. */
+body.endless {
+    --hud-reserve: 58px;
+}
+
+.run_hud {
+    align-items: center;
+    background: #0007;
+    border: 3px solid var(--frame-dark);
+    border-radius: 10px;
+    box-shadow: inset 0 2px 4px #000a, 0 3px 0 #0006;
+    color: var(--parchment);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em 0.7em;
+    justify-content: center;
+    margin-bottom: 1em;
+    max-width: 580px;
+    padding: 0.7ex 0.9em;
+    width: 100%;
+}
+
+/* The three tallies travel together, so they wrap to a tidy second
+   line as a group when the scores grow too wide for one line. */
+.run_stats {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    gap: 0.3em 0.7em;
+    justify-content: center;
+}
+
+/* The display:flex above would otherwise override the hidden
+   attribute, leaving an empty frame when Endless rush is off. */
+.run_hud[hidden] {
+    display: none;
+}
+
+.run_clock {
+    align-items: center;
+    display: flex;
+    gap: 0.4em;
+}
+
+.run_label {
+    font-size: 13px;
+}
+
+.run_time {
+    color: var(--gold-bright);
+    font-size: 15px;
+    min-width: 2.6em;
+    text-align: center;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.run_track {
+    background: #000a;
+    border: 2px solid var(--frame-dark);
+    border-radius: 6px;
+    flex: 1 1 50px;
+    height: 16px;
+    min-width: 28px;
+    overflow: hidden;
+}
+
+.run_bar {
+    background: linear-gradient(90deg, var(--player-2-colour), var(--gold));
+    height: 100%;
+    transition: width 1s linear;
+    width: 100%;
+}
+
+.run_stat {
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.run_stat strong {
+    color: var(--gold-bright);
+}
+
+.run_chef_1 {
+    color: var(--player-1-colour);
+}
+
+.run_chef_2 {
+    color: #5fd0c0;
+}
+
+/* The final ten seconds: a clear red, not signalled by colour alone —
+   the numeric countdown and the spoken warnings carry the message too. */
+.run_hud.urgent {
+    border-color: var(--red-ink);
+}
+
+.run_hud.urgent .run_time {
+    animation: run_pulse 1s steps(2) infinite;
+    color: #ff8a7a;
+}
+
+.run_hud.urgent .run_bar {
+    background: linear-gradient(90deg, #b34226, var(--red-ink));
+}
+
+@keyframes run_pulse {
+    50% {
+        opacity: 0.45;
+    }
+}
+
+
+/* Pieces that no longer fit anywhere are dimmed — a hint only; they
+   stay selectable, since the box may still change around them. */
+.piece_button.unavailable {
+    filter: grayscale(0.7);
+    opacity: 0.4;
+}
+
+
+/* The points-to-gain badge floated over a previewed placement. */
+.preview_value {
+    background: #1c120cdd;
+    border: 2px solid var(--gold);
+    border-radius: 6px;
+    color: var(--gold-bright);
+    font-size: 8px;
+    left: 50%;
+    padding: 0.3ex 0.5ex;
+    pointer-events: none;
+    position: absolute;
+    top: -0.7em;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    z-index: 5;
+}
+
+.preview_value.loss {
+    border-color: var(--red-ink);
+    color: #ff9d8e;
+}
+
+
+/* Hint is disabled in omakase mode — the specials are hidden. */
+#hint_button:disabled {
+    cursor: default;
+    opacity: 0.4;
+}
